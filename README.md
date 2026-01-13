@@ -248,7 +248,7 @@ All classification rules and their corresponding thresholds can be configured at
 
 ## Alternate Window Feature
 
-EventWeatherGuard supports suggesting alternate event time windows with optimal weather conditions. When a user requests a forecast for an event, the system can recommend up to alternate time slots within the next 24 hours that maximize weather suitability for the event.
+EventWeatherGuard supports suggesting alternate event time windows with optimal weather conditions. When a user requests a forecast for an event, the system can recommend alternate time slots within the next 24 hours that maximize weather suitability for the event, in case the current window is Unsafe / Risky.
 
 This feature is accessible via the event forecast endpoint and leverages advanced weather analysis to improve event planning.
 
@@ -262,7 +262,7 @@ This feature is accessible via the event forecast endpoint and leverages advance
 
 - **Trade-offs:**
   - **Real-time Data:** The service fetches current/forecast data, but cannot guarantee accuracy for rapidly changing conditions.
-  - **Rule Simplicity:** We utilize a deterministic rule engine rather than a black-box ML model. This was chosen to prioritize explainability (as seen in the reasons array) and ease of maintenance  
+  - **Rule Simplicity:** We utilize a deterministic rule engine rather than a black-box ML model. This was chosen to prioritize explainability (as seen in the reasons array) and ease of maintenance.
   - **No Persistent Storage:** The service is stateless and does not store event or user data.
   - **External Dependency:** By leveraging Open-Meteo instead of a self-hosted weather model, the service remains lightweight and scalable, though it is subject to the rate limits and data models of the third-party provider.
 
