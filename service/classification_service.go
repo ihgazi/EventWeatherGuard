@@ -30,6 +30,8 @@ func ClassifyEvent(hours []model.HourlyForecast) ClassificationResult {
 	for _, h := range hours {
 		eval := cls.EvaluateHourlyRisk(h, cls.DefaultThresholds, cls.DefaultWeights)
 
+		fmt.Printf("Report: %+v\n", eval)
+
 		if eval.Level == cls.Unsafe {
 			finalLevel = cls.Unsafe
 		} else if eval.Level == cls.Risky && finalLevel != cls.Unsafe {
@@ -50,7 +52,6 @@ func ClassifyEvent(hours []model.HourlyForecast) ClassificationResult {
 		reasons = append(reasons, "No significant wind or rain expected.")
 	}
 
-	fmt.Printf("Peak Report: %+v\n", peakReport)
 	return ClassificationResult{
 		Classification: finalLevel,
 		Reason:         reasons,
@@ -65,7 +66,7 @@ func buildSummary(peakReport cls.HourlyEvaluation) string {
 	case cls.Safe:
 		return "Weather conditions are safe throughout the event."
 	case cls.Unsafe:
-		return "Severe thunderstorms are expected during the event."
+		return "Severe weather conditions are expected during the event."
 	default:
 		return "Moderate rainfall and winds are expected during the event."
 	}

@@ -34,7 +34,14 @@ func EventForecastHandler(c *gin.Context) {
 		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
 		return
 	}
-	// TODO: Add checks to validate whether event time is in 16 day window
+
+	// Validate time window of event
+	if !validateEventTime(req.StartTime.Time, req.EndTime.Time) {
+		c.JSON(http.StatusBadRequest, gin.H{
+			"error": "event window must be between the next 6 days",
+		})
+		return
+	}
 
 	// Initialize weather service with Open-Meteo client
 	weatherSvc := service.NewWeatherService(
@@ -69,4 +76,19 @@ func EventForecastHandler(c *gin.Context) {
 	}
 
 	c.JSON(http.StatusOK, response)
+}
+
+func validateEventTime(start, end time.Time) bool {
+	now := time.Now().UTC()
+
+	if !start.After(now) || !end.After(start) {
+		return false
+	}
+
+	maxAllowed := now.Add(6 * 24 * time.Hour)
+	if end.After(maxAllowed) {
+		return false
+	}
+
+	return true
 }

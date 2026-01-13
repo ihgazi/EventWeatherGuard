@@ -45,8 +45,8 @@ EventWeatherGuard is a Go-based backend service that helps event organizers asse
     "latitude": -28.06,
     "longitude": 156.48
   },
-  "start_time": "2026-01-13T21:00:00",
-  "end_time": "2026-01-13T23:00:00"
+  "start_time": "2026-01-13T01:00:00",
+  "end_time": "2026-01-13T03:00:00"
 }
 ```
 
@@ -54,26 +54,26 @@ EventWeatherGuard is a Go-based backend service that helps event organizers asse
 ```json
 {
   "classification": "Risky",
-  "severity": 50,
+  "severity": 84,
   "summary": "Moderate rainfall and winds are expected during the event.",
   "reasons": [
-    "High chance of rain (50%) at 21:00",
-    "High chance of rain (58%) at 22:00"
+    "Moderate risk: 4.5 mm rain, 34.3 km/h wind, 100% rain probability at 01:00",
+    "Moderate risk: 4.5 mm rain, 36.1 km/h wind, 100% rain probability at 02:00"
   ],
   "forecast_window": [
     {
-      "time": "2026-01-13T21:00:00Z",
-      "rain_prob": 50,
-      "precip_mm": 0,
-      "wind_kmh": 13.4,
-      "weather": "Clear"
+      "time": "2026-01-13T01:00:00Z",
+      "rain_prob": 100,
+      "precip_mm": 4.5,
+      "wind_kmh": 34.3,
+      "weather": "Rain Showers"
     },
     {
-      "time": "2026-01-13T22:00:00Z",
-      "rain_prob": 58,
-      "precip_mm": 0,
-      "wind_kmh": 14,
-      "weather": "Heavy Rain"
+      "time": "2026-01-13T02:00:00Z",
+      "rain_prob": 100,
+      "precip_mm": 4.5,
+      "wind_kmh": 36.1,
+      "weather": "Rain Showers"
     }
   ]
 }
@@ -99,8 +99,8 @@ every hour within the event window is evaluated independently, and the **highest
 
 ### 1. Risk Classification Logic
 
-Each hourly forecast is evaluated against predefined thresholds using **OR-based rules**.  
-If a condition is met, that hour is immediately classified at the corresponding risk level.
+Each hourly forecast is evaluated using a rule-based verification logic, that classifies the given weather conditions as a specific risk level.
+The classifier attempts to find the most severe rule from the current set that satisfies the given conditions.
 
 ### Weather Parameters Considered
 - Hourly precipitation (mm)
@@ -171,7 +171,7 @@ This ensures that **dangerous but low-rain scenarios** (e.g., dry thunderstorms 
 
 ### 5. Configuration
 
-All thresholds and weights are **fully configurable** and defined in: `service/classification/config.go`
+All classification rules and their corresponding thresholds can be configured at: `service/classification/rules.go`
 
 
 ---

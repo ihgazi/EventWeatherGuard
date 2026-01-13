@@ -26,7 +26,6 @@ func NewWeatherService(client *client.OpenMeteoClient) *WeatherService {
 
 // GetEventForecast retrieves and processes hourly weather forecasts for a given event location and time window.
 // It filters the forecast data to only include hours within the specified start and end times.
-
 func (s *WeatherService) GetEventForecast(
 	ctx context.Context,
 	lat, long float64,

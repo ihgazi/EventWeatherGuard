@@ -1,10 +1,11 @@
-// Package classification provides the core logic for evaluating weather risk levels
-// for individual hours based on configurable thresholds and weights.
+// Package classification provides rule-based event weather classification logic.
+//
+// This package evaluates weather conditions for events using a configurable set of rules.
+// Each rule defines criteria for classifying weather as suitable or unsuitable for an event.
+// The evaluation process selects the most appropriate rule based on event context and weather data.
 package classification
 
 import (
-	"fmt"
-
 	"github.com/ihgazi/EventWeatherGuard/model"
 )
 
@@ -15,63 +16,31 @@ func EvaluateHourlyRisk(
 	t SeverityThresholds,
 	w SeverityWeights,
 ) HourlyEvaluation {
-	if h.Precipitation >= t.UnsafeRainMM ||
-		h.WindKmh >= t.UnsafeWindKmh ||
-		h.Weather == "Thunderstorm" {
 
-		return HourlyEvaluation{
-			Level:    Unsafe,
-			Reason:   buildReason(h, t),
-			Severity: computeSeverity(h, w, t),
+	var selectedRule *RiskRule
+
+	// Find most severe matching rule
+	for _, rule := range ClassificationRules {
+		if rule.Matches(h, t) {
+			if selectedRule == nil ||
+				riskPriority(rule.Level) > riskPriority(selectedRule.Level) {
+				selectedRule = &rule
+			}
 		}
 	}
 
-	if h.Precipitation >= t.RiskyRainMM ||
-		h.WindKmh >= t.RiskyWindKmh ||
-		h.RainProb >= t.RiskyRainProb ||
-		h.Weather == "Heavy Rain" {
-
+	if selectedRule != nil {
 		return HourlyEvaluation{
-			Level:    Risky,
-			Reason:   buildReason(h, t),
+			Level:    selectedRule.Level,
+			Reason:   selectedRule.Description(h),
 			Severity: computeSeverity(h, w, t),
 		}
 	}
 
 	return HourlyEvaluation{
 		Level:    Safe,
-		Reason:   "Favorable weather conditions, Have a great day!",
+		Reason:   "Favorable weather conditions.",
 		Severity: computeSeverity(h, w, t),
-	}
-}
-
-// buildReason generates a human-readable explanation for the assigned risk level
-// based on the hourly weather data and thresholds.
-func buildReason(h model.HourlyForecast, t SeverityThresholds) string {
-	switch {
-	case h.Weather == "Thunderstorm":
-		return fmt.Sprintf("Thunderstorm predicted at %s", h.Time.Format("12:00"))
-	case h.Precipitation >= t.RiskyRainMM:
-		return fmt.Sprintf(
-			"Expected %.1f mm of rain with probability %d%% at %s",
-			h.Precipitation,
-			h.RainProb,
-			h.Time.Format("15:04"),
-		)
-	case h.RainProb >= t.RiskyRainProb:
-		return fmt.Sprintf(
-			"High chance of rain (%d%%) at %s",
-			h.RainProb,
-			h.Time.Format("15:04"),
-		)
-	case h.WindKmh >= t.RiskyWindKmh:
-		return fmt.Sprintf(
-			"Expected wind speed of %.1f km/h at %s",
-			h.WindKmh,
-			h.Time.Format("15:04"),
-		)
-	default:
-		return "No significant wind or rain expected."
 	}
 }
 
@@ -102,5 +71,19 @@ func wmoCap(h model.HourlyForecast, w SeverityWeights) float64 {
 		return w.Storm[1]
 	default:
 		return w.Storm[0]
+	}
+}
+
+// Evaluate priority of different risk levels
+func riskPriority(level RiskLevel) int {
+	switch level {
+	case Unsafe:
+		return 3
+	case Risky:
+		return 2
+	case Safe:
+		return 1
+	default:
+		return 0
 	}
 }
