@@ -1,6 +1,7 @@
 package service
 
 import (
+	"context"
 	"time"
 
 	"github.com/relvacode/iso8601"
@@ -22,11 +23,12 @@ func NewWeatherService(client *client.OpenMeteoClient) *WeatherService {
 }
 
 func (s *WeatherService) GetEventForecast(
+	ctx context.Context,
 	lat, long float64,
 	start, end time.Time,
 ) ([]model.HourlyForecast, error) {
 
-	raw, err := s.client.FetchWeatherData(lat, long)
+	raw, err := s.client.FetchWeatherData(ctx, lat, long)
 	if err != nil {
 		return nil, err
 	}

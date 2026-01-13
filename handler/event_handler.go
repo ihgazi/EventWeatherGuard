@@ -1,7 +1,9 @@
 package handler
 
 import (
+	"context"
 	"net/http"
+	"time"
 
 	"github.com/gin-gonic/gin"
 
@@ -22,7 +24,11 @@ func EventForecastHandler(c *gin.Context) {
 		client.NewOpenMeteoClient(),
 	)
 
+	ctx, cancel := context.WithTimeout(c.Request.Context(), 1*time.Minute)
+	defer cancel()
+
 	forecast, err := weatherSvc.GetEventForecast(
+		ctx,
 		req.Location.Latitude,
 		req.Location.Longitude,
 		req.StartTime.UTC(),
@@ -34,7 +40,15 @@ func EventForecastHandler(c *gin.Context) {
 		return
 	}
 
-	// TODO: Apply classification rules to get risk level
+	result := service.ClassifyEvent(forecast)
 
-	c.JSON(http.StatusOK, gin.H{"forecast": forecast})
+	response := model.EventForecastResponse{
+		Classification: string(result.Classification),
+		Summary:        string(result.Classification) + " weather expected.",
+		Reasons:        result.Reason,
+		Severity:       result.Severity,
+		ForecastWindow: forecast,
+	}
+
+	c.JSON(http.StatusOK, response)
 }

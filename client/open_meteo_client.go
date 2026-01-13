@@ -1,6 +1,7 @@
 package client
 
 import (
+	"context"
 	"encoding/json"
 	"fmt"
 	"net/http"
@@ -19,13 +20,18 @@ func NewOpenMeteoClient() *OpenMeteoClient {
 	}
 }
 
-func (c *OpenMeteoClient) FetchWeatherData(lat, long float64) (*model.OpenMeteoResponse, error) {
+func (c *OpenMeteoClient) FetchWeatherData(ctx context.Context, lat, long float64) (*model.OpenMeteoResponse, error) {
 	url := fmt.Sprintf(
 		"https://api.open-meteo.com/v1/forecast?latitude=%f&longitude=%f&hourly=precipitation_probability,rain,wind_speed_10m,weather_code&timezone=UTC",
 		lat, long,
 	)
 
-	resp, err := c.httpClient.Get(url)
+	req, err := http.NewRequestWithContext(ctx, "GET", url, nil)
+	if err != nil {
+		return nil, err
+	}
+
+	resp, err := c.httpClient.Do(req)
 	if err != nil {
 		return nil, err
 	}
