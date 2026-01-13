@@ -7,6 +7,7 @@ import (
 	"github.com/gin-gonic/gin"
 
 	"github.com/ihgazi/EventWeatherGuard/handler"
+	"github.com/ihgazi/EventWeatherGuard/logger"
 )
 
 var router *gin.Engine
@@ -14,6 +15,10 @@ var router *gin.Engine
 func main() {
 	// Initialize Gin router
 	router = gin.Default()
+
+	// Initialize logger
+	logger.Init()
+	defer logger.Log.Sync()
 
 	api := router.Group("/")
 	{

@@ -1,12 +1,14 @@
 package model
 
-import "time"
+import (
+	"github.com/relvacode/iso8601"
+)
 
 type EventForecastRequest struct {
-	Name      string    `json:"name" binding:"required"`
-	Location  Location  `json:"location" binding:"required"`
-	StartTime time.Time `json:"start_time" binding:"required"`
-	EndTime   time.Time `json:"end_time" binding:"required"`
+	Name      string        `json:"name" binding:"required"`
+	Location  Location      `json:"location" binding:"required"`
+	StartTime *iso8601.Time `json:"start_time" binding:"required"`
+	EndTime   *iso8601.Time `json:"end_time" binding:"required"`
 }
 
 type Location struct {
