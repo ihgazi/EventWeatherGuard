@@ -150,7 +150,6 @@ EventWeatherGuard is a Go-based backend service that helps event organizers asse
 }
 ```
 
-```
 ---
 ## API Documentation
 
