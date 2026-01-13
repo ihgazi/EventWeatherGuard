@@ -20,9 +20,11 @@ func FindTopKWindows(
 	limit := min(len(hourly), 24)
 	candidates := []model.EventWindow{}
 
+	// Check every window in next 24 hours
 	for i := 0; i+eventDuration <= limit; i++ {
 		window := hourly[i : i+eventDuration]
 
+		// Fetch weather report for current window
 		result := ClassifyEvent(window)
 
 		// Ignore Unsafe / Risky time windows
@@ -38,6 +40,7 @@ func FindTopKWindows(
 	}
 
 	// Sort by severity, then by earliest time
+	// Return windows with lowest severity score
 	sort.Slice(candidates, func(i, j int) bool {
 		if candidates[i].Score < candidates[j].Score {
 			return candidates[i].Score < candidates[j].Score

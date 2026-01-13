@@ -17,7 +17,7 @@ const docTemplate = `{
     "paths": {
         "/event-forecast": {
             "post": {
-                "description": "Returns weather risk assessment for a given event location and time window.",
+                "description": "Returns weather risk assessment for a given event location and time window. Optionally fetches alternate time windows, in case current window is Unsafe or Risky.",
                 "consumes": [
                     "application/json"
                 ],
@@ -88,6 +88,7 @@ const docTemplate = `{
                     "$ref": "#/definitions/model.Location"
                 },
                 "name": {
+                    "description": "Name of event",
                     "type": "string"
                 },
                 "start_time": {
@@ -130,13 +131,13 @@ const docTemplate = `{
         "model.EventWindow": {
             "type": "object",
             "properties": {
-                "endTime": {
+                "end_time": {
                     "type": "string"
                 },
-                "score": {
+                "severity": {
                     "type": "integer"
                 },
-                "startTime": {
+                "start_time": {
                     "type": "string"
                 }
             }

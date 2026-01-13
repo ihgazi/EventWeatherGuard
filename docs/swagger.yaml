@@ -9,6 +9,7 @@ definitions:
       location:
         $ref: '#/definitions/model.Location'
       name:
+        description: Name of event
         type: string
       start_time:
         type: string
@@ -41,11 +42,11 @@ definitions:
     type: object
   model.EventWindow:
     properties:
-      endTime:
+      end_time:
         type: string
-      score:
+      severity:
         type: integer
-      startTime:
+      start_time:
         type: string
     type: object
   model.HourlyForecast:
@@ -83,7 +84,8 @@ paths:
       consumes:
       - application/json
       description: Returns weather risk assessment for a given event location and
-        time window.
+        time window. Optionally fetches alternate time windows, in case current window
+        is Unsafe or Risky.
       parameters:
       - description: Event forecast request
         in: body

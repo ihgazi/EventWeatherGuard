@@ -9,6 +9,7 @@ EventWeatherGuard is a Go-based backend service that helps event organizers asse
 ### Prerequisites
 
 - Go 1.18 or later installed ([Download Go](https://golang.org/dl/))
+- Make
 
 ### Installation
 
@@ -18,14 +19,14 @@ EventWeatherGuard is a Go-based backend service that helps event organizers asse
    cd EventWeatherGuard
    ```
 
-2. **Install dependencies:**
+2. **Build and Run the Service:**
    ```sh
-   go mod tidy
+   make run
    ```
 
-3. **Build and run the server:**
+3. **Verify with a Test Request:**
    ```sh
-   go run main.go
+   make test
    ```
    By default, the server listens on `localhost:8080`.
 
@@ -36,6 +37,16 @@ EventWeatherGuard is a Go-based backend service that helps event organizers asse
 ### Endpoint: `/event-forecast`
 
 **Method:** `POST`
+
+## Request Parameters
+
+| Parameter | Type | Description |
+| :--- | :--- | :--- |
+| **name** | `string` | Human-readable name of the event. |
+| **location** | `object` | Contains `latitude` and `longitude` (decimal degrees). |
+| **start_time** | `string` | The start time in **ISO8601** format (e.g., `2026-01-13T01:00:00`). Normalized to UTC by the backend. |
+| **end_time** | `string` | The end time in **ISO8601** format. Defines the final hour for weather data retrieval. |
+| list_alternatives | `boolean` (optional) | List alternative timings in case current timings in Unfair / Risky.
 
 **Request Body:**
 ```json
@@ -79,6 +90,67 @@ EventWeatherGuard is a Go-based backend service that helps event organizers asse
 }
 ```
 
+**Example with Alternate Timings:**
+```json
+{
+  "name": "Football Match",
+  "location": {
+    "latitude": -28.06,
+    "longitude": 156.48
+  },
+  "start_time": "2026-01-14T01:00:00",
+  "end_time": "2026-01-14T03:00:00", 
+  "list_alternates": true
+}
+```
+```
+
+```json
+{
+  "classification": "Unsafe",
+  "severity": 65,
+  "summary": "Severe weather conditions are expected during the event.",
+  "reasons": [
+    "Extreme weather: 10.0 mm rain and 40.0 km/h wind at 01:00",
+    "Extreme weather: 11.0 mm rain and 40.4 km/h wind at 02:00"
+  ],
+  "forecast_window": [
+    {
+      "time": "2026-01-14T01:00:00Z",
+      "rain_prob": 50,
+      "precip_mm": 10,
+      "wind_kmh": 40,
+      "weather": "Clear"
+    },
+    {
+      "time": "2026-01-14T02:00:00Z",
+      "rain_prob": 48,
+      "precip_mm": 11,
+      "wind_kmh": 40.4,
+      "weather": "Clear"
+    }
+  ],
+  "alternate_timings": [
+    {
+      "start_time": "2026-01-14T17:00:00Z",
+      "end_time": "2026-01-14T19:00:00Z",
+      "severity": 44
+    },
+    {
+      "start_time": "2026-01-14T15:00:00Z",
+      "end_time": "2026-01-14T17:00:00Z",
+      "severity": 45
+    },
+    {
+      "start_time": "2026-01-14T16:00:00Z",
+      "end_time": "2026-01-14T18:00:00Z",
+      "severity": 45
+    }
+  ]
+}
+```
+
+```
 ---
 ## API Documentation
 
@@ -176,17 +248,24 @@ All classification rules and their corresponding thresholds can be configured at
 
 ---
 
+## Alternate Window Feature
+
+EventWeatherGuard supports suggesting alternate event time windows with optimal weather conditions. When a user requests a forecast for an event, the system can recommend up to alternate time slots within the next 24 hours that maximize weather suitability for the event.
+
+This feature is accessible via the event forecast endpoint and leverages advanced weather analysis to improve event planning.
+
 ## Key Assumptions and Trade-offs
 
 - **Assumptions:**
-  - The Open-Meteo API is available and reliable.
-  - Event organizers provide accurate latitude, longitude, and event time.
-  - Weather data granularity is sufficient for event planning.
+  - **Upstream Reliability:** The Open-Meteo API is available and reliable, and provides accurate weather forecasts.
+  - **Input Precision:** The user provide accurate latitude, longitude, and event time, in the necessary formats.
+  - **Temporal Granularity:** Forecast analysis assumes that hourly data provides sufficient resolution for event-level safety decision-making.
+  - **Event Constraints:** The event duration is assumed to be of short period (few hours) and occuring in the near future, in order to achieve accurate predictions.
 
 - **Trade-offs:**
   - **Real-time Data:** The service fetches current/forecast data, but cannot guarantee accuracy for rapidly changing conditions.
-  - **Rule Simplicity:** Classification rules are intentionally simple for clarity and maintainability; more complex models (e.g., ML-based) are not used.
+  - **Rule Simplicity:** We utilize a deterministic rule engine rather than a black-box ML model. This was chosen to prioritize explainability (as seen in the reasons array) and ease of maintenance  
   - **No Persistent Storage:** The service is stateless and does not store event or user data.
-  - **Extensibility:** The modular design allows for easy integration of additional weather providers or more advanced classification logic in the future.
+  - **External Dependency:** By leveraging Open-Meteo instead of a self-hosted weather model, the service remains lightweight and scalable, though it is subject to the rate limits and data models of the third-party provider.
 
 ---

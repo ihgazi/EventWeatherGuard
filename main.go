@@ -7,11 +7,11 @@ package main
 
 import (
 	"fmt"
-	"log"
 
 	"github.com/gin-gonic/gin"
 	swaggerFiles "github.com/swaggo/files"
 	ginSwagger "github.com/swaggo/gin-swagger"
+	"go.uber.org/zap"
 
 	_ "github.com/ihgazi/EventWeatherGuard/docs"
 	"github.com/ihgazi/EventWeatherGuard/handler"
@@ -23,7 +23,6 @@ var router *gin.Engine
 
 func main() {
 	// Initialize Gin router
-	gin.SetMode(gin.ReleaseMode)
 	router = gin.Default()
 
 	// Initialize logger
@@ -42,6 +41,6 @@ func main() {
 	port := 8080
 	address := fmt.Sprintf(":%d", port)
 	if err := router.Run(address); err != nil {
-		log.Fatalf("Failed to run server: %v", err)
+		logger.Log.Error("Failed to run server: %v", zap.Error(err))
 	}
 }

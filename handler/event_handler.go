@@ -40,7 +40,7 @@ func EventForecastHandler(c *gin.Context) {
 	// Validate time window of event
 	if !validateEventTime(req.StartTime.Time, req.EndTime.Time) {
 		c.JSON(http.StatusBadRequest, gin.H{
-			"error": "event window must be between the next 6 days",
+			"error": "Invalid event timings: Event window must lie within next 6 days.",
 		})
 		return
 	}
