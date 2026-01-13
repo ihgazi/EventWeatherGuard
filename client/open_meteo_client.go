@@ -1,3 +1,4 @@
+// package client provides API clients for external weather services.
 package client
 
 import (
@@ -20,7 +21,11 @@ func NewOpenMeteoClient() *OpenMeteoClient {
 	}
 }
 
+// FetchWeatherData retrieves weather forecast data from the Open-Meteo API
+// for the specified latitude and longitude. It returns a parsed OpenMeteoResponse
+// or an error if the request fails.
 func (c *OpenMeteoClient) FetchWeatherData(ctx context.Context, lat, long float64) (*model.OpenMeteoResponse, error) {
+	// Open-Meteo API URL with required parameters
 	url := fmt.Sprintf(
 		"https://api.open-meteo.com/v1/forecast?latitude=%f&longitude=%f&hourly=precipitation_probability,rain,wind_speed_10m,weather_code&timezone=UTC",
 		lat, long,

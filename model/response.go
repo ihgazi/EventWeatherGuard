@@ -1,5 +1,8 @@
 package model
 
+// EventForecastResponse represents the API response for event weather forecast.
+//
+// swagger:model EventForecastResponse
 type EventForecastResponse struct {
 	Classification string           `json:"classification"`
 	Severity       int              `json:"severity"`

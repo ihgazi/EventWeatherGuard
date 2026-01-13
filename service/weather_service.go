@@ -12,6 +12,8 @@ import (
 	"github.com/ihgazi/EventWeatherGuard/model"
 )
 
+// WeatherService provides methods to fetch and process weather forecasts
+// using an external API client.
 type WeatherService struct {
 	client *client.OpenMeteoClient
 }
@@ -21,6 +23,9 @@ func NewWeatherService(client *client.OpenMeteoClient) *WeatherService {
 		client: client,
 	}
 }
+
+// GetEventForecast retrieves and processes hourly weather forecasts for a given event location and time window.
+// It filters the forecast data to only include hours within the specified start and end times.
 
 func (s *WeatherService) GetEventForecast(
 	ctx context.Context,

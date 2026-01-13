@@ -1,3 +1,5 @@
+// Package classification provides the core logic for evaluating weather risk levels
+// for individual hours based on configurable thresholds and weights.
 package classification
 
 import (
@@ -6,7 +8,8 @@ import (
 	"github.com/ihgazi/EventWeatherGuard/model"
 )
 
-// Evaluate risk for a single hourly forecast
+// EvaluateHourlyRisk assesses the weather risk for a single hourly forecast.
+// It returns an HourlyEvaluation containing the risk level, reason, and severity score.
 func EvaluateHourlyRisk(
 	h model.HourlyForecast,
 	t SeverityThresholds,
@@ -42,7 +45,8 @@ func EvaluateHourlyRisk(
 	}
 }
 
-// Build human-readable reason for risk evaluation
+// buildReason generates a human-readable explanation for the assigned risk level
+// based on the hourly weather data and thresholds.
 func buildReason(h model.HourlyForecast, t SeverityThresholds) string {
 	switch {
 	case h.Weather == "Thunderstorm":
@@ -71,6 +75,8 @@ func buildReason(h model.HourlyForecast, t SeverityThresholds) string {
 	}
 }
 
+// computeSeverity calculates a normalized severity score (0.0–1.0) for the hour
+// based on precipitation, wind, and rain probability, weighted by the provided configuration.
 func computeSeverity(
 	h model.HourlyForecast,
 	w SeverityWeights,
@@ -85,6 +91,7 @@ func computeSeverity(
 	return min(1.0, score)
 }
 
+// wmoCap returns a minimum severity score based on the WMO weather code label.
 func wmoCap(h model.HourlyForecast, w SeverityWeights) float64 {
 	switch h.Weather {
 	case "Thunderstorm":

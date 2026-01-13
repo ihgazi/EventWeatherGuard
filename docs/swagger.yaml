@@ -1,0 +1,101 @@
+basePath: /
+definitions:
+  model.EventForecastRequest:
+    properties:
+      end_time:
+        type: string
+      location:
+        $ref: '#/definitions/model.Location'
+      name:
+        type: string
+      start_time:
+        type: string
+    required:
+    - end_time
+    - location
+    - name
+    - start_time
+    type: object
+  model.EventForecastResponse:
+    properties:
+      classification:
+        type: string
+      forecast_window:
+        items:
+          $ref: '#/definitions/model.HourlyForecast'
+        type: array
+      reasons:
+        items:
+          type: string
+        type: array
+      severity:
+        type: integer
+      summary:
+        type: string
+    type: object
+  model.HourlyForecast:
+    properties:
+      precip_mm:
+        type: number
+      rain_prob:
+        type: integer
+      time:
+        type: string
+      weather:
+        type: string
+      wind_kmh:
+        type: number
+    type: object
+  model.Location:
+    properties:
+      latitude:
+        type: number
+      longitude:
+        type: number
+    required:
+    - latitude
+    - longitude
+    type: object
+host: localhost:8080
+info:
+  contact: {}
+  description: API for weather risk assessment for outdoor events.
+  title: EventWeatherGuard API
+  version: "1.0"
+paths:
+  /event-forecast:
+    post:
+      consumes:
+      - application/json
+      description: Returns weather risk assessment for a given event location and
+        time window.
+      parameters:
+      - description: Event forecast request
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/model.EventForecastRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/model.EventForecastResponse'
+        "400":
+          description: Bad Request
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "500":
+          description: Internal Server Error
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+      summary: Get event weather forecast and risk classification
+      tags:
+      - event
+swagger: "2.0"

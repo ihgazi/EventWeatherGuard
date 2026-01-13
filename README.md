@@ -14,7 +14,7 @@ EventWeatherGuard is a Go-based backend service that helps event organizers asse
 
 1. **Clone the repository:**
    ```sh
-   git clone https://github.com/yourusername/EventWeatherGuard.git
+   git clone https://github.com/ihgazi/EventWeatherGuard.git
    cd EventWeatherGuard
    ```
 
@@ -78,6 +78,14 @@ EventWeatherGuard is a Go-based backend service that helps event organizers asse
   ]
 }
 ```
+
+---
+## API Documentation
+
+Interactive API documentation is available via Swagger UI.
+
+- Start the server (`go run main.go`)
+- Open [http://localhost:8080/swagger/index.html](http://localhost:8080/swagger/index.html) in your browser to explore and test the API.
 
 ---
 ## Weather Classification & Severity Evaluation

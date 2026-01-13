@@ -1,3 +1,5 @@
+// Packge handler provides HTTP handlers for the EventWeatherGuard API.
+// This file defines the handler for the event weather forecast requests.
 package handler
 
 import (
@@ -12,14 +14,29 @@ import (
 	"github.com/ihgazi/EventWeatherGuard/service"
 )
 
+// EventForecastHandler handles POST requests for event weather forecasts.
+//
+// @Summary      Get event weather forecast and risk classification
+// @Description  Returns weather risk assessment for a given event location and time window.
+// @Tags         event
+// @Accept       json
+// @Produce      json
+// @Param        request  body      model.EventForecastRequest  true  "Event forecast request"
+// @Success      200      {object}  model.EventForecastResponse
+// @Failure      400      {object}  map[string]string
+// @Failure      500      {object}  map[string]string
+// @Router       /event-forecast [post]
 func EventForecastHandler(c *gin.Context) {
 	var req model.EventForecastRequest
+
+	// Bind and validate JSON request body
 	if err := c.ShouldBindJSON(&req); err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
 		return
 	}
 	// TODO: Add checks to validate whether event time is in 16 day window
 
+	// Initialize weather service with Open-Meteo client
 	weatherSvc := service.NewWeatherService(
 		client.NewOpenMeteoClient(),
 	)
@@ -27,6 +44,7 @@ func EventForecastHandler(c *gin.Context) {
 	ctx, cancel := context.WithTimeout(c.Request.Context(), 1*time.Minute)
 	defer cancel()
 
+	// Fetch the weather forecast for the event location and time window
 	forecast, err := weatherSvc.GetEventForecast(
 		ctx,
 		req.Location.Latitude,

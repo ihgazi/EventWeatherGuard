@@ -1,0 +1,151 @@
+{
+    "swagger": "2.0",
+    "info": {
+        "description": "API for weather risk assessment for outdoor events.",
+        "title": "EventWeatherGuard API",
+        "contact": {},
+        "version": "1.0"
+    },
+    "host": "localhost:8080",
+    "basePath": "/",
+    "paths": {
+        "/event-forecast": {
+            "post": {
+                "description": "Returns weather risk assessment for a given event location and time window.",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "event"
+                ],
+                "summary": "Get event weather forecast and risk classification",
+                "parameters": [
+                    {
+                        "description": "Event forecast request",
+                        "name": "request",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/model.EventForecastRequest"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/model.EventForecastResponse"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": {
+                                "type": "string"
+                            }
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": {
+                                "type": "string"
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    },
+    "definitions": {
+        "model.EventForecastRequest": {
+            "type": "object",
+            "required": [
+                "end_time",
+                "location",
+                "name",
+                "start_time"
+            ],
+            "properties": {
+                "end_time": {
+                    "type": "string"
+                },
+                "location": {
+                    "$ref": "#/definitions/model.Location"
+                },
+                "name": {
+                    "type": "string"
+                },
+                "start_time": {
+                    "type": "string"
+                }
+            }
+        },
+        "model.EventForecastResponse": {
+            "type": "object",
+            "properties": {
+                "classification": {
+                    "type": "string"
+                },
+                "forecast_window": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/model.HourlyForecast"
+                    }
+                },
+                "reasons": {
+                    "type": "array",
+                    "items": {
+                        "type": "string"
+                    }
+                },
+                "severity": {
+                    "type": "integer"
+                },
+                "summary": {
+                    "type": "string"
+                }
+            }
+        },
+        "model.HourlyForecast": {
+            "type": "object",
+            "properties": {
+                "precip_mm": {
+                    "type": "number"
+                },
+                "rain_prob": {
+                    "type": "integer"
+                },
+                "time": {
+                    "type": "string"
+                },
+                "weather": {
+                    "type": "string"
+                },
+                "wind_kmh": {
+                    "type": "number"
+                }
+            }
+        },
+        "model.Location": {
+            "type": "object",
+            "required": [
+                "latitude",
+                "longitude"
+            ],
+            "properties": {
+                "latitude": {
+                    "type": "number"
+                },
+                "longitude": {
+                    "type": "number"
+                }
+            }
+        }
+    }
+}

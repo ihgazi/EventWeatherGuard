@@ -7,6 +7,9 @@ import (
 	cls "github.com/ihgazi/EventWeatherGuard/service/classification"
 )
 
+// ClassificationResult represents the outcome of classifying an event's weather risk.
+// It includes the overall risk level, reasons for the classification, a summary message,
+// and a severity score (0-100).
 type ClassificationResult struct {
 	Classification cls.RiskLevel
 	Reason         []string
@@ -14,6 +17,8 @@ type ClassificationResult struct {
 	Severity       int
 }
 
+// ClassifyEvent aggregates hourly weather risk evaluations for an event window
+// and determines the overall event risk level, reasons, summary, and severity.
 func ClassifyEvent(hours []model.HourlyForecast) ClassificationResult {
 	finalLevel := cls.Safe
 	var reasons []string
@@ -54,6 +59,7 @@ func ClassifyEvent(hours []model.HourlyForecast) ClassificationResult {
 	}
 }
 
+// buildSummary generates a human-readable summary message based on the peak hourly risk evaluation.
 func buildSummary(peakReport cls.HourlyEvaluation) string {
 	switch peakReport.Level {
 	case cls.Safe:
