@@ -81,6 +81,9 @@ const docTemplate = `{
                 "end_time": {
                     "type": "string"
                 },
+                "list_alternates": {
+                    "type": "boolean"
+                },
                 "location": {
                     "$ref": "#/definitions/model.Location"
                 },
@@ -95,6 +98,12 @@ const docTemplate = `{
         "model.EventForecastResponse": {
             "type": "object",
             "properties": {
+                "alternate_timings": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/model.EventWindow"
+                    }
+                },
                 "classification": {
                     "type": "string"
                 },
@@ -114,6 +123,20 @@ const docTemplate = `{
                     "type": "integer"
                 },
                 "summary": {
+                    "type": "string"
+                }
+            }
+        },
+        "model.EventWindow": {
+            "type": "object",
+            "properties": {
+                "endTime": {
+                    "type": "string"
+                },
+                "score": {
+                    "type": "integer"
+                },
+                "startTime": {
                     "type": "string"
                 }
             }

@@ -12,3 +12,13 @@ type HourlyForecast struct {
 	WindKmh       float64   `json:"wind_kmh"`
 	Weather       string    `json:"weather"`
 }
+
+// EventWindow represents a specific time duration where the event occurs
+// and its corresponding severity score.
+//
+// swagger:model EventWindow
+type EventWindow struct {
+	StartTime time.Time `json:"start_time"`
+	EndTime   time.Time `json:"end_time"`
+	Score     int       `json:"severity"`
+}

@@ -23,6 +23,7 @@ var router *gin.Engine
 
 func main() {
 	// Initialize Gin router
+	gin.SetMode(gin.ReleaseMode)
 	router = gin.Default()
 
 	// Initialize logger

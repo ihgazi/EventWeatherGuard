@@ -1,8 +1,6 @@
 package service
 
 import (
-	"fmt"
-
 	"github.com/ihgazi/EventWeatherGuard/model"
 	cls "github.com/ihgazi/EventWeatherGuard/service/classification"
 )
@@ -29,8 +27,6 @@ func ClassifyEvent(hours []model.HourlyForecast) ClassificationResult {
 	// Reasons are aggregated over all hourly windows
 	for _, h := range hours {
 		eval := cls.EvaluateHourlyRisk(h, cls.DefaultThresholds, cls.DefaultWeights)
-
-		fmt.Printf("Report: %+v\n", eval)
 
 		if eval.Level == cls.Unsafe {
 			finalLevel = cls.Unsafe

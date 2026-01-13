@@ -4,6 +4,8 @@ definitions:
     properties:
       end_time:
         type: string
+      list_alternates:
+        type: boolean
       location:
         $ref: '#/definitions/model.Location'
       name:
@@ -18,6 +20,10 @@ definitions:
     type: object
   model.EventForecastResponse:
     properties:
+      alternate_timings:
+        items:
+          $ref: '#/definitions/model.EventWindow'
+        type: array
       classification:
         type: string
       forecast_window:
@@ -31,6 +37,15 @@ definitions:
       severity:
         type: integer
       summary:
+        type: string
+    type: object
+  model.EventWindow:
+    properties:
+      endTime:
+        type: string
+      score:
+        type: integer
+      startTime:
         type: string
     type: object
   model.HourlyForecast:

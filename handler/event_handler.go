@@ -8,8 +8,10 @@ import (
 	"time"
 
 	"github.com/gin-gonic/gin"
+	"go.uber.org/zap"
 
 	"github.com/ihgazi/EventWeatherGuard/client"
+	"github.com/ihgazi/EventWeatherGuard/logger"
 	"github.com/ihgazi/EventWeatherGuard/model"
 	"github.com/ihgazi/EventWeatherGuard/service"
 )
@@ -17,7 +19,7 @@ import (
 // EventForecastHandler handles POST requests for event weather forecasts.
 //
 // @Summary      Get event weather forecast and risk classification
-// @Description  Returns weather risk assessment for a given event location and time window.
+// @Description  Returns weather risk assessment for a given event location and time window. Optionally fetches alternate time windows, in case current window is Unsafe or Risky.
 // @Tags         event
 // @Accept       json
 // @Produce      json
@@ -75,6 +77,10 @@ func EventForecastHandler(c *gin.Context) {
 		ForecastWindow: forecast,
 	}
 
+	if req.ListAlters && response.Classification != "Safe" {
+		response.AlternateWindows = alternateWindows(ctx, req, weatherSvc)
+	}
+
 	c.JSON(http.StatusOK, response)
 }
 
@@ -91,4 +97,31 @@ func validateEventTime(start, end time.Time) bool {
 	}
 
 	return true
+}
+
+// alternateWindows suggests alternate time windows for an event with optimal weather conditions.
+//
+// Given an event request, this function analyzes the weather forecast for the next 24 hours
+// and returns up to three alternate time slots that best match the event's duration and weather suitability.
+func alternateWindows(
+	ctx context.Context,
+	req model.EventForecastRequest,
+	weatherSvc *service.WeatherService,
+) []model.EventWindow {
+	eventHours := int(req.EndTime.Sub(req.StartTime.Time).Hours())
+
+	winStart := time.Now().UTC()
+	winEnd := winStart.Add(24 * time.Hour)
+	oneDayForecast, err := weatherSvc.GetEventForecast(ctx, req.Location.Latitude, req.Location.Longitude, winStart, winEnd)
+	if err != nil {
+		logger.Log.Error("Failed to fetch alternate times: ", zap.Error(err))
+	}
+
+	alternates := service.FindTopKWindows(
+		oneDayForecast,
+		eventHours,
+		3, // Fetch best 3 possible alternate timings
+	)
+
+	return alternates
 }
