@@ -44,7 +44,7 @@ func EventForecastHandler(c *gin.Context) {
 
 	response := model.EventForecastResponse{
 		Classification: string(result.Classification),
-		Summary:        string(result.Classification) + " weather expected.",
+		Summary:        result.Summary,
 		Reasons:        result.Reason,
 		Severity:       result.Severity,
 		ForecastWindow: forecast,
