@@ -4,6 +4,7 @@ package handler
 
 import (
 	"context"
+	"errors"
 	"net/http"
 	"time"
 
@@ -26,6 +27,7 @@ import (
 // @Param        request  body      model.EventForecastRequest  true  "Event forecast request"
 // @Success      200      {object}  model.EventForecastResponse
 // @Failure      400      {object}  map[string]string
+// @Failure 	 404 	  {object}  map[string]string
 // @Failure      500      {object}  map[string]string
 // @Router       /event-forecast [post]
 func EventForecastHandler(c *gin.Context) {
@@ -40,7 +42,15 @@ func EventForecastHandler(c *gin.Context) {
 	// Validate time window of event
 	if !validateEventTime(req.StartTime.Time, req.EndTime.Time) {
 		c.JSON(http.StatusBadRequest, gin.H{
-			"error": "Invalid event timings: Event window must lie within next 6 days.",
+			"error": "Invalid event timings: Event duration must be positive and lie within next 6 days.",
+		})
+		return
+	}
+
+	// Validate location of event
+	if err := validateLocation(req.Location); err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{
+			"error": err.Error(),
 		})
 		return
 	}
@@ -63,7 +73,13 @@ func EventForecastHandler(c *gin.Context) {
 	)
 
 	if err != nil {
-		c.JSON(http.StatusInternalServerError, gin.H{"Failed to get forecast from weather service": err.Error()})
+		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+		return
+	}
+
+	// Handle response in case of no forecast received
+	if len(forecast) == 0 {
+		c.JSON(http.StatusNotFound, gin.H{"error": "Data unavailable for the give forecast duration"})
 		return
 	}
 
@@ -91,12 +107,21 @@ func validateEventTime(start, end time.Time) bool {
 		return false
 	}
 
+	// Default limit of 6 days from current time
 	maxAllowed := now.Add(6 * 24 * time.Hour)
 	if end.After(maxAllowed) {
 		return false
 	}
 
 	return true
+}
+
+func validateLocation(l model.Location) error {
+	if l.Latitude < -90 || l.Latitude > 90 || l.Longitude < -180 || l.Longitude > 180 {
+		return errors.New("Invalid Coordinates: latitude must be in [-90, 90] and longitude must be in [-180, 180].")
+	}
+
+	return nil
 }
 
 // alternateWindows suggests alternate time windows for an event with optimal weather conditions.

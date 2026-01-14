@@ -9,7 +9,6 @@ definitions:
       location:
         $ref: '#/definitions/model.Location'
       name:
-        description: Name of event
         type: string
       start_time:
         type: string
@@ -102,6 +101,12 @@ paths:
             $ref: '#/definitions/model.EventForecastResponse'
         "400":
           description: Bad Request
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "404":
+          description: Not Found
           schema:
             additionalProperties:
               type: string

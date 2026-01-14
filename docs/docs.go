@@ -55,6 +55,15 @@ const docTemplate = `{
                             }
                         }
                     },
+                    "404": {
+                        "description": "Not Found",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": {
+                                "type": "string"
+                            }
+                        }
+                    },
                     "500": {
                         "description": "Internal Server Error",
                         "schema": {
@@ -88,7 +97,6 @@ const docTemplate = `{
                     "$ref": "#/definitions/model.Location"
                 },
                 "name": {
-                    "description": "Name of event",
                     "type": "string"
                 },
                 "start_time": {
